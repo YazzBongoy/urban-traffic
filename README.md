@@ -84,7 +84,7 @@ urban-traffic/
 
 ```bash
 # Cloner le repository
-git clone https://github.com/ascatsarl/urban-traffic.git
+git clone https://github.com/YazzBongoy/urban-traffic.git
 cd urban-traffic
 
 # Copier la configuration
@@ -188,4 +188,4 @@ AS CAT SARL - Kinshasa, RDC
 ## 📞 Contact
 
 - Email: contact@ascatsarl.com
-- GitHub: https://github.com/ascatsarl
+- GitHub: https://github.com/YazzBongoy/urban-traffic

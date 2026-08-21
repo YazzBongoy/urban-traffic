@@ -1,0 +1,49 @@
+{
+  "image": "tests/test_corolla.jpg",
+  "source": "Wikimedia Commons - Toyota Corolla Hybrid (E210)",
+  "backend": "onnxruntime",
+  "result": {
+    "make": "Toyota",
+    "model": "Corolla",
+    "year": 2020,
+    "class_name": "Toyota Corolla 2020",
+    "confidence": 0.037,
+    "top5": [
+      {
+        "class_name": "Toyota Corolla 2020",
+        "make": "Toyota",
+        "model": "Corolla",
+        "year": 2020,
+        "confidence": 0.037
+      },
+      {
+        "class_name": "BMW i3 2017",
+        "make": "BMW",
+        "model": "i3",
+        "year": 2017,
+        "confidence": 0.0229
+      },
+      {
+        "class_name": "Lexus UX 2020",
+        "make": "Lexus",
+        "model": "UX",
+        "year": 2020,
+        "confidence": 0.015
+      },
+      {
+        "class_name": "Toyota Camry 2020",
+        "make": "Toyota",
+        "model": "Camry",
+        "year": 2020,
+        "confidence": 0.011
+      },
+      {
+        "class_name": "Toyota Corolla 2019",
+        "make": "Toyota",
+        "model": "Corolla",
+        "year": 2019,
+        "confidence": 0.0095
+      }
+    ]
+  }
+}

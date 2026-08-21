@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.services.auth import AuthService
+from app.services.auth import AuthService, get_current_user
 
 router = APIRouter()
 
@@ -20,12 +20,12 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
         )
-    access_token = auth_service.create_access_token(data={"sub": user.username})
+    access_token = auth_service.create_access_token(
+        data={"sub": user.username, "role": user.role.value}
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.get("/me")
-async def get_current_user(
-    current_user=Depends(AuthService.get_current_user),
-):
+async def read_current_user(current_user=Depends(get_current_user)):
     return current_user

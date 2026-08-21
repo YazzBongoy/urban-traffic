@@ -1,9 +1,10 @@
-from typing import List, Optional
+from collections.abc import Sequence
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from app.models import TrafficZone, TrafficMetric
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import TrafficMetric, TrafficZone
 
 
 class TrafficService:
@@ -28,8 +29,8 @@ class TrafficService:
         self,
         start_date: datetime,
         end_date: datetime,
-        zone_id: Optional[int] = None,
-    ) -> List[TrafficMetric]:
+        zone_id: int | None = None,
+    ) -> Sequence[TrafficMetric]:
         query = select(TrafficMetric).where(
             TrafficMetric.timestamp.between(start_date, end_date)
         )
@@ -38,11 +39,11 @@ class TrafficService:
         result = await self.db.execute(query.order_by(TrafficMetric.timestamp))
         return result.scalars().all()
 
-    async def get_zones(self) -> List[TrafficZone]:
+    async def get_zones(self) -> Sequence[TrafficZone]:
         result = await self.db.execute(select(TrafficZone))
         return result.scalars().all()
 
-    async def get_heatmap(self, timestamp: Optional[datetime] = None) -> dict:
+    async def get_heatmap(self, timestamp: datetime | None = None) -> dict:
         if not timestamp:
             timestamp = datetime.utcnow()
         result = await self.db.execute(

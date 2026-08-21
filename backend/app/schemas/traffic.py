@@ -1,6 +1,6 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class TrafficMetricBase(BaseModel):
@@ -20,8 +20,8 @@ class TrafficMetricResponse(TrafficMetricBase):
 
 class ZoneBase(BaseModel):
     name: str
-    description: Optional[str] = None
-    polygon: Optional[str] = None
+    description: str | None = None
+    polygon: str | None = None
 
 
 class ZoneCreate(ZoneBase):
@@ -40,7 +40,7 @@ class ZoneResponse(ZoneBase):
 
 
 class RealtimeTraffic(BaseModel):
-    zones: List[ZoneResponse]
+    zones: list[ZoneResponse]
     total_vehicles: int
     average_congestion: float
     timestamp: datetime

@@ -1,19 +1,27 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/urban_traffic
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=your-secret-key
+      - SECRET_KEY=${SECRET_KEY:-dev-only-secret-key-change-me}
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./backend:/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
     networks:
       - traffic-net
 
@@ -24,10 +32,12 @@ services:
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    restart: unless-stopped
     networks:
       - traffic-net
 
@@ -41,6 +51,12 @@ services:
       - POSTGRES_DB=urban_traffic
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d urban_traffic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
     networks:
       - traffic-net
 
@@ -50,6 +66,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
     networks:
       - traffic-net
 
@@ -59,11 +81,17 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
     networks:
       - traffic-net
 

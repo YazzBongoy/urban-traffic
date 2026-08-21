@@ -1,6 +1,35 @@
 # Urban Traffic Management System
 
+![CI](https://github.com/YazzBongoy/urban-traffic/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+![React](https://img.shields.io/badge/react-18-61dafb.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688.svg)
+![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)
+![License](https://img.shields.io/badge/license-proprietary-red.svg)
+
 Système intelligent de gestion du trafic urbain utilisant des caméras 360° et la reconnaissance automatique de plaques d'immatriculation (RNI).
+
+## Sommaire
+
+- [Qu'est-ce que cette application ?](#quest-ce-que-cette-application-)
+- [Ce que fait l'application](#ce-que-fait-lapplication)
+- [Bénéfices concrets](#bénéfices-concrets)
+- [Architecture technique](#architecture-technique)
+- [Fonctionnalités principales](#fonctionnalités-principales)
+- [Stack technique](#stack-technique)
+- [État du projet & Roadmap](#état-du-projet--roadmap)
+- [Prérequis](#prérequis)
+- [Installation et démarrage](#installation-et-démarrage)
+- [Commandes Make](#commandes-make)
+- [Variables d'environnement](#variables-denvironnement)
+- [Structure de l'application](#structure-de-lapplication)
+- [API principale](#api-principale)
+- [Tests](#tests)
+- [Monitoring et observabilité](#monitoring-et-observabilité)
+- [Sécurité](#sécurité)
+- [Documentation](#documentation)
+- [Contribuer](#contribuer)
+- [Équipe et support](#équipe-et-support)
 
 ## Qu'est-ce que cette application ?
 
@@ -119,7 +148,7 @@ Cette application est une **plateforme complète de gestion du trafic urbain** q
 | Composant | Technologie | Justification |
 |-----------|-------------|---------------|
 | Backend API | FastAPI (Python) | Performance, asynchrone, auto-documentation |
-| Frontend Web | React + TypeScript | Composants réutilifiés, typage fort |
+| Frontend Web | React + TypeScript | Composants réutilisables, typage fort |
 | Base de données | PostgreSQL + TimescaleDB | Données relationnelles + séries temporelles |
 | Cache | Redis | Temps réel, pub/sub, sessions |
 | Vidéo | OpenCV + YOLOv8 | Détection objets en temps réel |
@@ -129,6 +158,18 @@ Cette application est une **plateforme complète de gestion du trafic urbain** q
 | IoT | MQTT + Edge Computing | Communication légère, traitement local |
 | Conteneurs | Docker + Kubernetes | Déploiement scalable |
 | CI/CD | GitHub Actions | Intégration continue automatisée |
+
+## État du projet & Roadmap
+
+Le projet suit un plan d'implémentation de 12 mois (détails dans [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)) :
+
+| Phase | Période | Contenu | Statut |
+|-------|---------|---------|--------|
+| 1 — Fondations | Mois 1-2 | Infra Docker, CI/CD, backend core (JWT, CRUD), frontend React | ✅ Terminé |
+| 2 — Core Features | Mois 3-5 | Vidéo RTSP + YOLOv8, OCR plaques, données trafic temps réel | 🚧 En cours |
+| 3 — Analytics & Intelligence | Mois 6-8 | Dashboard analytics, ML (LSTM), alertes email/SMS/push | ⏳ Planifié |
+| 4 — Optimisation | Mois 9-10 | Optimisation feux, itinéraires recommandés | ⏳ Planifié |
+| 5 — Déploiement production | Mois 11-12 | Kubernetes, monitoring complet, mise en service | ⏳ Planifié |
 
 ## Prérequis
 
@@ -176,6 +217,47 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## Commandes Make
+
+Un `Makefile` est fourni pour simplifier le quotidien :
+
+```bash
+make help           # Afficher toutes les commandes disponibles
+make setup          # Configuration initiale de l'environnement de dev
+make start          # Démarrer tous les services (docker-compose up -d)
+make stop           # Arrêter les services
+make restart        # Redémarrer les services
+make logs           # Suivre les logs en temps réel
+make status         # État des services
+make test           # Tous les tests (backend + frontend)
+make test-backend   # Tests backend uniquement (pytest)
+make test-frontend  # Tests frontend uniquement (vitest)
+make lint           # Lint backend (ruff) + frontend (eslint)
+make migrate        # Appliquer les migrations Alembic
+make makemigration msg="description"  # Créer une nouvelle migration
+make shell          # Shell dans le conteneur backend
+make db-shell       # Shell PostgreSQL (psql)
+make redis-shell    # Shell Redis (redis-cli)
+make build          # Construire les images Docker
+make clean          # Nettoyage complet (volumes + prune)
+```
+
+## Variables d'environnement
+
+Copier `.env.example` vers `.env` puis adapter :
+
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `DATABASE_URL` | Connexion PostgreSQL/TimescaleDB | `postgresql+asyncpg://postgres:postgres@localhost:5432/urban_traffic` |
+| `REDIS_URL` | Connexion Redis | `redis://localhost:6379` |
+| `SECRET_KEY` | Clé secrète JWT (**à changer en production**) | `your-secret-key-change-in-production` |
+| `JWT_ALGORITHM` | Algorithme de signature JWT | `HS256` |
+| `VITE_API_URL` | URL de l'API pour le frontend | `http://localhost:8000` |
+| `RTSP_STREAM_URL` | Flux RTSP des caméras 360° | `rtsp://admin:password@camera-ip:554/stream` |
+| `MINIO_ENDPOINT` | Endpoint MinIO/S3 | `localhost:9000` |
+| `MINIO_ACCESS_KEY` | Clé d'accès MinIO | `minioadmin` |
+| `MINIO_SECRET_KEY` | Clé secrète MinIO | `minioadmin` |
 
 ## Structure de l'Application
 
@@ -273,6 +355,28 @@ locust -f tests/load/locustfile.py
 - Protection contre les injections SQL (SQLAlchemy ORM)
 - Rate limiting pour éviter les abus
 - Audit logging de toutes les actions
+
+## Documentation
+
+Documentation détaillée dans le dépôt :
+
+| Document | Contenu |
+|----------|---------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Architecture technique complète (couches, flux de données, performance cible) |
+| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Plan d'implémentation sur 12 mois, phase par phase |
+| [docs/API.md](docs/API.md) | Référence détaillée de l'API REST |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Guide du développeur (conventions, workflow) |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Guide de déploiement (Docker, Kubernetes, production) |
+
+## Contribuer
+
+Ce projet est développé en interne par AS CAT SARL. Le workflow est le suivant :
+
+1. Créer une branche depuis `develop` : `git checkout -b feature/ma-fonctionnalite`
+2. Commiter avec des messages conventionnels (`feat:`, `fix:`, `docs:`, `test:`…)
+3. Vérifier la qualité : `make lint && make test`
+4. Ouvrir une Pull Request vers `develop` — la CI (GitHub Actions) doit passer
+5. Après revue, merge vers `main` pour les releases
 
 ## Équipe et Support
 

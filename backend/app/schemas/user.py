@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
+
+from pydantic import BaseModel
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     ADMIN = "admin"
     OPERATOR = "operator"
     VIEWER = "viewer"
@@ -17,7 +17,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    role: Optional[UserRole] = UserRole.VIEWER
+    role: UserRole | None = UserRole.VIEWER
 
 
 class UserResponse(UserBase):
@@ -36,4 +36,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    username: str | None = None

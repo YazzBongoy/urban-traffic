@@ -1,21 +1,22 @@
-from typing import List, Optional
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from collections.abc import Sequence
 
-from app.models import Vehicle, PlateReading
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import PlateReading, Vehicle
 
 
 class VehicleService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_all(self, skip: int = 0, limit: int = 100) -> List[Vehicle]:
+    async def get_all(self, skip: int = 0, limit: int = 100) -> Sequence[Vehicle]:
         result = await self.db.execute(
             select(Vehicle).offset(skip).limit(limit)
         )
         return result.scalars().all()
 
-    async def search_by_plate(self, plate_number: str) -> List[PlateReading]:
+    async def search_by_plate(self, plate_number: str) -> Sequence[PlateReading]:
         result = await self.db.execute(
             select(PlateReading)
             .where(PlateReading.plate_number.ilike(f"%{plate_number}%"))
@@ -23,7 +24,7 @@ class VehicleService:
         )
         return result.scalars().all()
 
-    async def get_history(self, vehicle_id: int) -> List[PlateReading]:
+    async def get_history(self, vehicle_id: int) -> Sequence[PlateReading]:
         result = await self.db.execute(
             select(PlateReading)
             .where(PlateReading.vehicle_id == vehicle_id)

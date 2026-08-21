@@ -1,11 +1,20 @@
-from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
-from alembic import context
 import asyncio
+from logging.config import fileConfig
+
+from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
 from app.core.database import Base
-from app.models import *  # Import all models
+from app.models import (  # noqa: F401 - ensure all models are registered on Base
+    Camera,
+    Incident,
+    PlateReading,
+    TrafficMetric,
+    TrafficZone,
+    User,
+    Vehicle,
+)
 
 config = context.config
 

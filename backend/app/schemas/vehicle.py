@@ -1,14 +1,14 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class VehicleBase(BaseModel):
     plate_number: str
-    vehicle_type: Optional[str] = None
-    color: Optional[str] = None
-    owner_name: Optional[str] = None
-    owner_phone: Optional[str] = None
+    vehicle_type: str | None = None
+    color: str | None = None
+    owner_name: str | None = None
+    owner_phone: str | None = None
 
 
 class VehicleCreate(VehicleBase):
@@ -28,21 +28,21 @@ class VehicleResponse(VehicleBase):
 class PlateReadingBase(BaseModel):
     plate_number: str
     confidence: float
-    direction: Optional[str] = None
-    speed: Optional[float] = None
+    direction: str | None = None
+    speed: float | None = None
 
 
 class PlateReadingCreate(PlateReadingBase):
-    vehicle_id: Optional[int] = None
+    vehicle_id: int | None = None
     camera_id: int
-    image_url: Optional[str] = None
+    image_url: str | None = None
 
 
 class PlateReadingResponse(PlateReadingBase):
     id: int
-    vehicle_id: Optional[int]
+    vehicle_id: int | None
     camera_id: int
-    image_url: Optional[str]
+    image_url: str | None
     timestamp: datetime
 
     class Config:

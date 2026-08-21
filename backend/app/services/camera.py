@@ -1,6 +1,8 @@
-from typing import List, Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from collections.abc import Sequence
+
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Camera
 from app.schemas.camera import CameraCreate
@@ -10,11 +12,11 @@ class CameraService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_all(self) -> List[Camera]:
+    async def get_all(self) -> Sequence[Camera]:
         result = await self.db.execute(select(Camera))
         return result.scalars().all()
 
-    async def get_by_id(self, camera_id: int) -> Optional[Camera]:
+    async def get_by_id(self, camera_id: int) -> Camera | None:
         result = await self.db.execute(
             select(Camera).where(Camera.id == camera_id)
         )

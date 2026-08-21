@@ -1,9 +1,9 @@
-from typing import Optional
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
-from app.models import TrafficMetric, TrafficZone, PlateReading
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import TrafficMetric
 
 
 class AnalyticsService:

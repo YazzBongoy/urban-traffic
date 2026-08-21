@@ -1,24 +1,25 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 from datetime import datetime
-import enum
+from enum import StrEnum
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
 
-class UserRole(str, enum.Enum):
+class UserRole(StrEnum):
     ADMIN = "admin"
     OPERATOR = "operator"
     VIEWER = "viewer"
 
 
-class CameraStatus(str, enum.Enum):
+class CameraStatus(StrEnum):
     ONLINE = "online"
     OFFLINE = "offline"
     MAINTENANCE = "maintenance"
 
 
-class IncidentStatus(str, enum.Enum):
+class IncidentStatus(StrEnum):
     REPORTED = "reported"
     CONFIRMED = "confirmed"
     RESOLVED = "resolved"
@@ -31,7 +32,7 @@ class User(Base):
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(200), nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.VIEWER)
+    role: Column = Column(Enum(UserRole), default=UserRole.VIEWER)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -46,7 +47,7 @@ class Camera(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     rtsp_url = Column(String(500), nullable=False)
-    status = Column(Enum(CameraStatus), default=CameraStatus.OFFLINE)
+    status: Column = Column(Enum(CameraStatus), default=CameraStatus.OFFLINE)
     is_360 = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -109,7 +110,7 @@ class Incident(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     severity = Column(Integer, default=1)  # 1-5
-    status = Column(Enum(IncidentStatus), default=IncidentStatus.REPORTED)
+    status: Column = Column(Enum(IncidentStatus), default=IncidentStatus.REPORTED)
     reported_by = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
     resolved_at = Column(DateTime)

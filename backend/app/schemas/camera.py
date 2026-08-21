@@ -1,10 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
+
+from pydantic import BaseModel
 
 
-class CameraStatus(str, Enum):
+class CameraStatus(StrEnum):
     ONLINE = "online"
     OFFLINE = "offline"
     MAINTENANCE = "maintenance"

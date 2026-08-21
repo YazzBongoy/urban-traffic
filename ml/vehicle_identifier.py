@@ -74,8 +74,8 @@ def export_standalone_onnx(output_path: Path | None = None) -> Path:
 
     Nécessite torch et timm ; opération hors-ligne à n'exécuter qu'une fois.
     """
-    import torch
     import timm
+    import torch
 
     out = output_path or STANDALONE_ONNX
     checkpoint = torch.load(CHECKPOINT_PTH, map_location="cpu", weights_only=False)
@@ -120,7 +120,7 @@ class VehicleIdentifier:
                 try:
                     self._session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
                     break
-                except Exception as e:
+                except (RuntimeError, OSError, ValueError) as e:
                     errors.append(f"{path.name}: {e}")
             if self._session is None:
                 raise RuntimeError("Aucun modèle ONNX chargeable (" + "; ".join(errors) + ")")
@@ -128,8 +128,8 @@ class VehicleIdentifier:
 
     def _get_torch_model(self):
         if self._torch_model is None:
-            import torch
             import timm
+            import torch
 
             checkpoint = torch.load(CHECKPOINT_PTH, map_location="cpu", weights_only=False)
             model = timm.create_model("efficientnet_b4", pretrained=False, num_classes=NUM_CLASSES)
@@ -143,7 +143,7 @@ class VehicleIdentifier:
             sess = self._get_session()
             input_name = sess.get_inputs()[0].name
             return sess.run(None, {input_name: x})[0][0]
-        except Exception:
+        except (RuntimeError, OSError, ValueError):
             import torch
 
             model = self._get_torch_model()

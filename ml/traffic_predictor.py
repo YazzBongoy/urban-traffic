@@ -4,14 +4,14 @@ Traffic Prediction Model using LSTM
 Predicts traffic congestion levels based on historical data.
 """
 
+import logging
+
 import numpy as np
 import pandas as pd
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
-from typing import Tuple, List
-import logging
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class TrafficPredictor:
         self.model = None
         self.scaler = MinMaxScaler()
     
-    def build_model(self, input_shape: Tuple[int, int]):
+    def build_model(self, input_shape: tuple[int, int]):
         """Build LSTM model for traffic prediction."""
         self.model = Sequential([
             LSTM(64, return_sequences=True, input_shape=input_shape),
@@ -47,7 +47,7 @@ class TrafficPredictor:
         self,
         data: pd.DataFrame,
         target_col: str = 'congestion_level'
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare data for LSTM training."""
         # Scale features
         scaled_data = self.scaler.fit_transform(data.values)

@@ -40,10 +40,6 @@ _config_stub = types.ModuleType("app.core.config")
 _config_stub.settings = SimpleNamespace(DATABASE_URL="sqlite+aiosqlite:///")
 sys.modules.setdefault("app.core.config", _config_stub)
 
-from sqlalchemy import delete, func, or_, select  # noqa: E402
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
 from app.models import (
     Camera,
     CameraStatus,
@@ -54,6 +50,9 @@ from app.models import (
     TrafficZone,
     Vehicle,
 )
+from sqlalchemy import delete, func, or_, select
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 DEFAULT_DB_URL = "sqlite+aiosqlite:////home/ascatsarl/urban-traffic/backend/urban_traffic.db"
 RTSP_PREFIX = "rtsp://demo.trafic-kinshasa.local/"
@@ -335,7 +334,7 @@ async def seed(session) -> dict[str, int]:
                 1.02,
                 max(0.03, occupancy_target * diurnal_factor(hour_f) * random.uniform(0.78, 1.22)),
             )
-            count = int(round(capacity * ratio))
+            count = round(capacity * ratio)
             congestion = congestion_from_ratio(ratio)
             avg_speed = round(max(6.0, freeflow * (1.0 - 0.78 * congestion) + random.uniform(-3.0, 3.0)), 1)
             metrics.append(

@@ -57,3 +57,6 @@ coverage/
 
 # Rust
 target/
+
+# Artefacts de tests ML
+ml/tests/

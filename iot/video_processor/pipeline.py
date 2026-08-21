@@ -17,9 +17,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 VEHICLE_CLASS_IDS = {2, 3, 5, 7}
+PLATE_READER_PATH = REPO_ROOT / "ml" / "models" / "plate-reader" / "read_plate.py"
 
 _detector = None
 _identifier = None
+_plate_reader = None
 
 
 def _get_detector():
@@ -40,6 +42,20 @@ def _get_identifier():
     return _identifier
 
 
+def _get_plate_reader():
+    global _plate_reader
+    if _plate_reader is None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("ut_plate_reader", PLATE_READER_PATH)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"Lecteur de plaques introuvable : {PLATE_READER_PATH}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _plate_reader = module.PlateReader()
+    return _plate_reader
+
+
 def models_available() -> bool:
     yolo = REPO_ROOT / "ml" / "models" / "yolov8n" / "yolov8n.onnx"
     classifier_dir = REPO_ROOT / "ml" / "models" / "vehicle-classifier"
@@ -50,11 +66,21 @@ def models_available() -> bool:
     return yolo.exists() and has_classifier and (classifier_dir / "class_mapping.csv").exists()
 
 
-def analyze_image(image_bytes: bytes, identify: bool = True) -> dict[str, Any]:
-    """Détecte les véhicules dans une image et identifie marque/modèle de chaque crop."""
+def plate_reader_available() -> bool:
+    return PLATE_READER_PATH.exists()
+
+
+def analyze_image(
+    image_bytes: bytes,
+    identify: bool = True,
+    read_plates: bool = False,
+    min_plate_confidence: float = 0.5,
+) -> dict[str, Any]:
+    """Détecte les véhicules, identifie marque/modèle et lit les plaques d'immatriculation."""
     detector = _get_detector()
     detections = [d for d in detector.detect(image_bytes) if d["class_id"] in VEHICLE_CLASS_IDS]
 
+    use_plates = read_plates and plate_reader_available()
     results: list[dict[str, Any]] = []
     for det in detections:
         entry: dict[str, Any] = {
@@ -62,27 +88,43 @@ def analyze_image(image_bytes: bytes, identify: bool = True) -> dict[str, Any]:
             "detection_confidence": round(float(det["confidence"]), 4),
             "bbox_xyxy": [round(v, 1) for v in det["bbox_xyxy"]],
             "identification": None,
+            "plate": None,
         }
-        if identify and det["class_id"] == 2:
-            crop = _crop_to_jpeg(image_bytes, det["bbox_xyxy"])
-            if crop is not None:
-                try:
-                    ident = _get_identifier().identify(crop)
-                    entry["identification"] = {
-                        "make": ident["make"],
-                        "model": ident["model"],
-                        "year": ident.get("year"),
-                        "confidence": ident["confidence"],
-                        "top3": [
-                            {"class_name": t["class_name"], "confidence": t["confidence"]}
-                            for t in ident.get("top5", [])[:3]
-                        ],
+        crop = _crop_to_jpeg(image_bytes, det["bbox_xyxy"])
+        if identify and det["class_id"] == 2 and crop is not None:
+            try:
+                ident = _get_identifier().identify(crop)
+                entry["identification"] = {
+                    "make": ident["make"],
+                    "model": ident["model"],
+                    "year": ident.get("year"),
+                    "confidence": ident["confidence"],
+                    "top3": [
+                        {"class_name": t["class_name"], "confidence": t["confidence"]}
+                        for t in ident.get("top5", [])[:3]
+                    ],
+                }
+            except (RuntimeError, OSError, ValueError):
+                entry["identification"] = None
+        if use_plates and crop is not None:
+            try:
+                plates = _get_plate_reader().read(crop)
+                best = max(plates, key=lambda p: p["confidence"], default=None)
+                if best and best["confidence"] >= min_plate_confidence:
+                    entry["plate"] = {
+                        "text": normalize_plate(best["text"]),
+                        "raw_text": best["text"],
+                        "confidence": round(float(best["confidence"]), 4),
                     }
-                except (RuntimeError, OSError, ValueError):
-                    entry["identification"] = None
+            except (RuntimeError, OSError, ValueError):
+                entry["plate"] = None
         results.append(entry)
 
     return {"detections": results, "count": len(results)}
+
+
+def normalize_plate(text: str) -> str:
+    return "".join(ch for ch in text.upper() if ch.isalnum())[:20]
 
 
 def _crop_to_jpeg(image_bytes: bytes, bbox_xyxy: list[float]) -> bytes | None:

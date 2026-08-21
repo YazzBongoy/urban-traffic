@@ -30,5 +30,19 @@ def models_available() -> bool:
     return _PIPELINE_PATH.exists() and _get_pipeline().models_available()
 
 
-def analyze_image(image_bytes: bytes, identify: bool = True) -> dict[str, Any]:
-    return _get_pipeline().analyze_image(image_bytes, identify=identify)
+def plate_reader_available() -> bool:
+    return _PIPELINE_PATH.exists() and _get_pipeline().plate_reader_available()
+
+
+def analyze_image(
+    image_bytes: bytes,
+    identify: bool = True,
+    read_plates: bool = False,
+    min_plate_confidence: float = 0.5,
+) -> dict[str, Any]:
+    return _get_pipeline().analyze_image(
+        image_bytes,
+        identify=identify,
+        read_plates=read_plates,
+        min_plate_confidence=min_plate_confidence,
+    )

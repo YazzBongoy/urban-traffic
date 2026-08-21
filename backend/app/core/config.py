@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
     def validate_security(self) -> None:
         """Fail fast on insecure configuration before serving traffic."""

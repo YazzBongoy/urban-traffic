@@ -28,6 +28,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# Modèles ML (poids téléchargés depuis HuggingFace — voir ml/models/vehicle-classifier/)
+ml/models/**/*.onnx
+ml/models/**/*.pth
+
 # Logs
 *.log
 logs/

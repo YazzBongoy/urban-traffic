@@ -1,36 +1,25 @@
-# MIASE SARL code ownership — urban-traffic
-# See the Shared Engineering Baseline v1 §2 (MIAA-3) for the review rules.
-#
-# CTO-mandatory review applies to: public API/schema contracts, auth/security
-# boundaries, DB migrations, and CI/release paths.
-#
-# Reviewer identity for the CTO role is @ASCATSARL. Replace it with a dedicated
-# @MIASE-SARL/cto team once that team or a CTO bot account exists.
+# MIASE shared engineering baseline (MIAA-13).
+# CTO review (@YazzBongoy) is mandatory for: public API/schema contracts,
+# auth/authorization boundaries, DB migrations, security-sensitive code,
+# and release/CI pipeline paths (baseline section 2).
+# GitHub username: repo owner acts as CTO reviewer. Revisions via CTO sign-off.
 
-# Default owner for the repository.
-*                               @YazzBongoy
+# Public API + schema/data contracts
+/backend/app/api/ @YazzBongoy
+/backend/app/schemas/ @YazzBongoy
+/backend/app/models/ @YazzBongoy
 
-# --- API / schema contracts (CTO review required) ---
-/backend/app/api/               @ASCATSARL
-/backend/app/schemas/           @ASCATSARL
-/backend/app/models/            @ASCATSARL
-/backend/app/main.py            @ASCATSARL
-/frontend/src/services/         @ASCATSARL
+# Auth / security boundaries
+/backend/app/core/ @YazzBongoy
+/backend/app/services/auth.py @YazzBongoy
+/backend/app/services/vision.py @YazzBongoy
 
-# --- Auth / security boundaries (CTO review required) ---
-/backend/app/core/              @ASCATSARL
+# DB migrations
+/backend/alembic/ @YazzBongoy
+/backend/alembic.ini @YazzBongoy
 
-# --- DB migrations (CTO review required) ---
-/backend/alembic/               @ASCATSARL
-/backend/alembic.ini            @ASCATSARL
-
-# --- CI / release / deploy paths (CTO review required) ---
-/.github/workflows/             @ASCATSARL
-/.github/CODEOWNERS             @ASCATSARL
-/docker-compose.yml             @ASCATSARL
-/backend/Dockerfile             @ASCATSARL
-/frontend/Dockerfile            @ASCATSARL
-/Makefile                       @ASCATSARL
-/scripts/                       @ASCATSARL
-/backend/requirements.txt       @ASCATSARL
-/backend/pyproject.toml         @ASCATSARL
+# CI / release paths
+/.github/ @YazzBongoy
+/backend/Dockerfile @YazzBongoy
+/docker-compose.yml @YazzBongoy
+/Makefile @YazzBongoy
